@@ -1,0 +1,8 @@
+@model EvacuationCenter
+@{
+    ViewData["Title"] = "Add location";
+}
+<h1 class="mb-3">Add location</h1>
+<form asp-action="Create" method="post">
+    <partial name="_Form" model="Model" />
+</form>

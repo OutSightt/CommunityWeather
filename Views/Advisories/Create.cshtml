@@ -1,0 +1,8 @@
+@model Advisory
+@{
+    ViewData["Title"] = "New advisory";
+}
+<h1 class="mb-3">New advisory</h1>
+<form asp-action="Create" method="post">
+    <partial name="_Form" model="Model" />
+</form>

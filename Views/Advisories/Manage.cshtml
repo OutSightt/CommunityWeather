@@ -1,0 +1,45 @@
+@model List<Advisory>
+@{
+    ViewData["Title"] = "Manage advisories";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0" style="font-size:1.9rem">Manage advisories</h1>
+    <a asp-action="Create" class="btn btn-primary">New advisory</a>
+</div>
+<div class="table-responsive">
+<table class="table table-sm align-middle">
+    <thead><tr><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Published</th><th>Valid until</th><th>Email</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var a in Model)
+    {
+        <tr>
+            <td><a asp-action="Details" asp-route-id="@a.Id">@a.Title</a></td>
+            <td>@a.Category</td>
+            <td>@a.Priority</td>
+            <td>@a.Status</td>
+            <td>@(a.PublishedAt?.ToString("MMM d, h:mm tt") ?? "-")</td>
+            <td>@(a.ValidUntil?.ToString("MMM d, h:mm tt") ?? "-")</td>
+            <td>@(a.EmailSent ? "Sent" : "-")</td>
+            <td class="text-nowrap">
+                <a asp-action="Edit" asp-route-id="@a.Id" class="btn btn-outline-primary btn-sm">Edit</a>
+                @if (a.Status != "Published")
+                {
+                    <form asp-action="Publish" asp-route-id="@a.Id" method="post" class="d-inline">
+                        <button class="btn btn-success btn-sm">Publish</button>
+                    </form>
+                }
+                @if (a.Status != "Archived")
+                {
+                    <form asp-action="ArchiveNotice" asp-route-id="@a.Id" method="post" class="d-inline">
+                        <button class="btn btn-outline-secondary btn-sm">Archive</button>
+                    </form>
+                }
+                <form asp-action="Delete" asp-route-id="@a.Id" method="post" class="d-inline" onsubmit="return confirm('Delete this advisory?');">
+                    <button class="btn btn-outline-danger btn-sm">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+</div>

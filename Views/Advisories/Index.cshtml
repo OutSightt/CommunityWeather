@@ -1,0 +1,19 @@
+@model List<Advisory>
+@{
+    ViewData["Title"] = "Advisories";
+}
+<div class="section-head">
+    <div>
+        <h1>Community advisories</h1>
+        <p class="lede">Notices published by your community administrators that are still in effect.</p>
+    </div>
+    <a asp-action="Archive" class="btn btn-outline-secondary btn-sm">Past notices</a>
+</div>
+@if (!Model.Any())
+{
+    <div class="empty">No active advisories right now. New notices will appear here when an administrator publishes them.</div>
+}
+@foreach (var a in Model)
+{
+    <partial name="_Card" model="a" />
+}

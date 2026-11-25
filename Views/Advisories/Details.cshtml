@@ -1,0 +1,19 @@
+@model Advisory
+@{
+    ViewData["Title"] = Model.Title;
+}
+<a asp-action="Index">Back to advisories</a>
+<article class="measure mt-3">
+    <div class="mb-2">
+        @if (Model.Priority == "High") { <span class="tag tag-high">High priority</span> }
+        <span class="tag">@Model.Category</span>
+        @if (Model.Status != "Published") { <span class="tag">@Model.Status</span> }
+    </div>
+    <h1>@Model.Title</h1>
+    <p class="notice-meta mb-4">
+        Affected area: @Model.AffectedArea.
+        Published @(Model.PublishedAt?.ToString("MMM d, yyyy h:mm tt") ?? "not yet").
+        @if (Model.ValidUntil.HasValue) { <text>Valid until @Model.ValidUntil.Value.ToString("MMM d, yyyy h:mm tt").</text> }
+    </p>
+    <div class="notice-body" style="font-size:1.1rem">@Model.Message</div>
+</article>

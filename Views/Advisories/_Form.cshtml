@@ -1,0 +1,41 @@
+@model Advisory
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Message" class="form-label"></label>
+    <textarea asp-for="Message" class="form-control" rows="5"></textarea>
+    <span asp-validation-for="Message" class="text-danger"></span>
+</div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="AffectedArea" class="form-label"></label>
+        <input asp-for="AffectedArea" class="form-control" />
+        <span asp-validation-for="AffectedArea" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="ValidUntil" class="form-label"></label>
+        <input asp-for="ValidUntil" type="datetime-local" class="form-control" />
+        <span asp-validation-for="ValidUntil" class="text-danger"></span>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Category" class="form-label"></label>
+        <select asp-for="Category" class="form-select" asp-items="@(new SelectList(Lookups.Categories))"></select>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Priority" class="form-label"></label>
+        <select asp-for="Priority" class="form-select" asp-items="@(new SelectList(Lookups.Priorities))"></select>
+        <div class="form-text">High priority emails subscribed residents when published.</div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select" asp-items="@(new SelectList(Lookups.Statuses))"></select>
+    </div>
+</div>
+<button class="btn btn-primary" type="submit">Save</button>
+<a asp-action="Manage" class="btn btn-outline-secondary">Cancel</a>

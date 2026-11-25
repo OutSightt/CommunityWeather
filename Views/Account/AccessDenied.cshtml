@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Access denied";
+}
+<div class="measure">
+    <h1>You can't open this page</h1>
+    <p class="lede">
+        @if (User.IsInRole(Roles.Admin))
+        {
+            <text>This page is for residents. Your administrator dashboard has the tools you need.</text>
+        }
+        else
+        {
+            <text>This page is only for community administrators. If you need access, ask an administrator to change your role.</text>
+        }
+    </p>
+    <a class="btn btn-primary" asp-controller="Account" asp-action="Dashboard">Go to my dashboard</a>
+</div>

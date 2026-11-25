@@ -1,0 +1,8 @@
+@model PreparednessGuide
+@{
+    ViewData["Title"] = "New guide";
+}
+<h1 class="mb-3">New guide</h1>
+<form asp-action="Create" method="post">
+    <partial name="_Form" model="Model" />
+</form>

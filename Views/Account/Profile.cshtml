@@ -1,0 +1,26 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My profile";
+}
+<div class="auth">
+    <h1>My profile</h1>
+    <p class="lede">Signed in as <strong>@(User.IsInRole(Roles.Admin) ? "community administrator" : "resident")</strong>.</p>
+    <form asp-action="Profile" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" disabled />
+        </div>
+        <div class="mb-3">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+        <div class="form-check mb-3">
+            <input asp-for="EmailAlerts" class="form-check-input" />
+            <label asp-for="EmailAlerts" class="form-check-label"></label>
+        </div>
+        <button class="btn btn-primary" type="submit">Save changes</button>
+        <a class="btn btn-outline-secondary" asp-action="ChangePassword">Change password</a>
+    </form>
+</div>

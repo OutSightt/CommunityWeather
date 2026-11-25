@@ -1,0 +1,65 @@
+@model List<User>
+@{
+    ViewData["Title"] = "Users and roles";
+    string? q = ViewBag.Q;
+    string? role = ViewBag.Role;
+    int me = (int)ViewBag.CurrentUserId;
+}
+<h1>Users and roles</h1>
+<p class="lede">Promote a resident to community administrator, or disable an account. Changes take effect immediately, even for people who are already logged in.</p>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-md-6">
+        <label for="q" class="visually-hidden">Search users</label>
+        <input id="q" name="q" value="@q" class="form-control" placeholder="Search by name or email" />
+    </div>
+    <div class="col-md-3">
+        <label for="role" class="visually-hidden">Role</label>
+        <select id="role" name="role" class="form-select">
+            <option value="">All roles</option>
+            @foreach (var r in Roles.All)
+            {
+                <option value="@r" selected="@(r == role)">@(r == Roles.Admin ? "Administrators" : "Residents")</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3 d-grid"><button class="btn btn-primary">Search</button></div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="empty">No users match your search.</div>
+}
+else
+{
+<div class="table-responsive">
+<table class="table align-middle">
+    <thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Last login</th><th>Joined</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var u in Model)
+    {
+        <tr>
+            <td>@u.FullName@(u.Id == me ? " (you)" : "")<br /><span class="notice-meta">@u.Email</span></td>
+            <td><span class="tag @(u.Role == Roles.Admin ? "tag-admin" : "")">@(u.Role == Roles.Admin ? "Administrator" : "Resident")</span></td>
+            <td>@(!u.IsActive ? "Disabled" : u.IsLockedOut ? "Locked for now" : "Active")</td>
+            <td>@(u.LastLoginAt?.ToString("MMM d, yyyy h:mm tt") ?? "Never")</td>
+            <td>@u.CreatedAt.ToString("MMM d, yyyy")</td>
+            <td class="text-nowrap">
+                @if (u.Id != me)
+                {
+                    <form asp-action="SetRole" asp-route-id="@u.Id" method="post" class="d-inline" onsubmit="return confirm('Change this person\'s role?');">
+                        <input type="hidden" name="role" value="@(u.Role == Roles.Admin ? Roles.Resident : Roles.Admin)" />
+                        <button class="btn btn-outline-primary btn-sm">@(u.Role == Roles.Admin ? "Make resident" : "Make administrator")</button>
+                    </form>
+                    <form asp-action="SetActive" asp-route-id="@u.Id" method="post" class="d-inline">
+                        <input type="hidden" name="active" value="@((!u.IsActive).ToString().ToLowerInvariant())" />
+                        <button class="btn btn-outline-secondary btn-sm">@(u.IsActive ? "Disable" : "Enable")</button>
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+</div>
+}

@@ -1,0 +1,45 @@
+@model List<PreparednessGuide>
+@{
+    ViewData["Title"] = "Prepare";
+    string? q = ViewBag.Q;
+    string? hazard = ViewBag.Hazard;
+    var filtered = !string.IsNullOrWhiteSpace(q) || !string.IsNullOrWhiteSpace(hazard);
+}
+<h1>Get ready</h1>
+<p class="lede">Practical checklists for the hazards our community faces. Read them before the weather turns.</p>
+
+<form method="get" class="row g-2 mb-3" role="search">
+    <div class="col-md-8">
+        <label for="q" class="visually-hidden">Search guides</label>
+        <input id="q" name="q" value="@q" class="form-control" placeholder="Search by topic, such as flood or go-bag" />
+    </div>
+    @if (!string.IsNullOrWhiteSpace(hazard)) { <input type="hidden" name="hazard" value="@hazard" /> }
+    <div class="col-md-4 d-grid"><button class="btn btn-primary">Search guides</button></div>
+</form>
+
+<div class="chips" aria-label="Filter by hazard">
+    <a class="chip @(string.IsNullOrWhiteSpace(hazard) ? "is-current" : "")" asp-action="Index" asp-route-q="@q">All hazards</a>
+    @foreach (var h in Lookups.Hazards)
+    {
+        <a class="chip @(h == hazard ? "is-current" : "")" asp-action="Index" asp-route-hazard="@h" asp-route-q="@q">@h</a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty">No guides match your search. Try a shorter word or choose All hazards.</div>
+}
+@foreach (var g in Model)
+{
+    <details class="guide" open="@(filtered || g == Model.First())">
+        <summary><span>@g.Title</span> <span class="tag">@g.Hazard</span></summary>
+        <div class="guide-body">
+            <ul class="checklist">
+                @foreach (var line in g.Content.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    <li>@line</li>
+                }
+            </ul>
+        </div>
+    </details>
+}

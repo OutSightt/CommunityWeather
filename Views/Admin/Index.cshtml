@@ -1,0 +1,35 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Administrator dashboard";
+}
+<h1>Administrator dashboard</h1>
+<p class="lede">What residents can see, who has an account, and what still needs your attention.</p>
+
+<div class="figures mb-5">
+    <div class="figure"><b>@Model.ActiveAdvisories</b><span>Active advisories</span></div>
+    <div class="figure"><b>@Model.Residents</b><span>Residents</span></div>
+    <div class="figure"><b>@Model.Admins</b><span>Administrators</span></div>
+    <div class="figure"><b>@Model.Subscribers</b><span>Email subscribers</span></div>
+    <div class="figure"><b>@Model.Locations</b><span>Mapped locations and facilities</span></div>
+    <div class="figure"><b>@Model.Guides</b><span>Preparedness guides</span></div>
+</div>
+
+<div class="row g-5">
+    <div class="col-md-6">
+        <h2 class="h4">Needs attention</h2>
+        <ul class="todo">
+            <li><span>Draft advisories waiting to be published</span><a asp-controller="Advisories" asp-action="Manage"><strong>@Model.Drafts</strong></a></li>
+            <li><span>High-priority notices without an email alert sent</span><a asp-controller="Advisories" asp-action="Manage"><strong>@Model.EmailPending</strong></a></li>
+            <li><span>Locations missing map coordinates</span><a asp-controller="Centers" asp-action="Manage"><strong>@Model.Unmapped</strong></a></li>
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h4">Do something</h2>
+        <div class="d-grid gap-2" style="max-width:20rem">
+            <a class="btn btn-primary" asp-controller="Advisories" asp-action="Create">Write an advisory</a>
+            <a class="btn btn-outline-secondary" asp-controller="Admin" asp-action="Users">Manage users and roles</a>
+            <a class="btn btn-outline-secondary" asp-controller="Centers" asp-action="Create">Add a location</a>
+            <a class="btn btn-outline-secondary" asp-controller="Guides" asp-action="Create">Add a guide</a>
+        </div>
+    </div>
+</div>

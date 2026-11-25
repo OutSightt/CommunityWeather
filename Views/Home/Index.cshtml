@@ -1,0 +1,157 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Weather";
+    ViewData["FullBleed"] = true;
+    var w = Model.Weather;
+    string Cap(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1);
+    string Sky()
+    {
+        if (!w.Ok || string.IsNullOrEmpty(w.Icon) || w.Icon.Length < 3) return "idle";
+        var night = w.Icon.EndsWith("n");
+        return w.Icon.Substring(0, 2) switch
+        {
+            "01" => night ? "clear-night" : "clear-day",
+            "09" or "10" => "rain",
+            "11" => "storm",
+            "50" => "mist",
+            _ => "clouds"
+        };
+    }
+    var urgent = Model.Advisories.FirstOrDefault(a => a.Priority == "High");
+}
+
+@if (!w.Ok)
+{
+    <section class="sky sky-idle">
+        <div class="container sky-error">
+            <p class="sky-place">@w.Location</p>
+            <h1 class="sky-desc">Weather is unavailable right now</h1>
+            <p>@w.Error</p>
+            @if (w.IsCustomLocation)
+            {
+                <a class="btn btn-outline-light btn-sm" href="/">Back to community weather</a>
+            }
+        </div>
+    </section>
+}
+else
+{
+    <section class="sky sky-@Sky()" aria-labelledby="now-heading">
+        <div class="container sky-inner">
+            <div>
+                <h1 id="now-heading" class="sky-place">@w.Location</h1>
+                <p class="sky-action">
+                    <button type="button" class="btn btn-light btn-sm" id="use-location">Use my location</button>
+                    @if (w.IsCustomLocation)
+                    {
+                        <a class="btn btn-outline-light btn-sm" href="/">Back to community weather</a>
+                    }
+                    <span id="loc-status" class="small" role="status"></span>
+                </p>
+                <p class="sky-temp">@w.Temperature.ToString("0")<span>@w.TempUnit</span></p>
+                <p class="sky-desc">@Cap(w.Description)</p>
+            </div>
+            <dl class="sky-facts">
+                <div><dt>Feels like</dt><dd>@w.FeelsLike.ToString("0")@w.TempUnit</dd></div>
+                <div><dt>Humidity</dt><dd>@w.Humidity%</dd></div>
+                <div><dt>Wind</dt><dd>@w.WindSpeed.ToString("0.#") @w.WindUnit</dd></div>
+                <div><dt>Rain in the last hour</dt><dd>@(w.RainLastHourMm.HasValue ? w.RainLastHourMm.Value.ToString("0.#") + " mm" : "None reported")</dd></div>
+            </dl>
+        </div>
+        <div class="container sky-source">
+            Data from OpenWeather, retrieved @w.RetrievedAt.ToString("MMM d, yyyy h:mm tt"). For urgent decisions, follow PAGASA and your local government.
+        </div>
+    </section>
+}
+
+@if (urgent != null)
+{
+    <div class="signal-band" role="region" aria-label="High-priority advisory">
+        <div class="container">
+            <strong>High priority: @urgent.Title</strong>
+            <span>@urgent.AffectedArea</span>
+            <a asp-controller="Advisories" asp-action="Details" asp-route-id="@urgent.Id">Read the notice</a>
+        </div>
+    </div>
+}
+
+@if (w.Ok && w.Forecast.Any())
+{
+    <section class="band container" aria-labelledby="rain-heading" style="padding-top:2.5rem">
+        <div class="section-head">
+            <h2 id="rain-heading">Chance of rain, next 5 days</h2>
+            <p>The fuller the tank, the likelier the rain.</p>
+        </div>
+        <ol class="levels">
+            @foreach (var d in w.Forecast)
+            {
+                <li class="level">
+                    <div class="level-pct">@d.RainChancePercent.ToString("0")%</div>
+                    <div class="level-tank" role="img" aria-label="Rain chance @d.RainChancePercent.ToString("0") percent">
+                        <div class="level-fill" style="--h:@d.RainChancePercent.ToString("0")%"></div>
+                    </div>
+                    <div class="level-day">@d.Date.ToString("ddd, MMM d")</div>
+                    <img src="https://openweathermap.org/img/wn/@(d.Icon).png" alt="" width="48" height="48" />
+                    <div class="level-temp">@d.MaxTemp.ToString("0")° / @d.MinTemp.ToString("0")°</div>
+                    <div class="level-desc">@d.Description</div>
+                    @if (d.RainMm > 0) { <div class="level-mm">About @d.RainMm mm</div> }
+                </li>
+            }
+        </ol>
+    </section>
+}
+
+<section class="band container" aria-labelledby="latest-heading" style="padding-top:@(w.Ok && w.Forecast.Any() ? "0" : "2.5rem")">
+    <div class="section-head">
+        <h2 id="latest-heading">Latest advisories</h2>
+        <a asp-controller="Advisories" asp-action="Index">See all advisories</a>
+    </div>
+    @if (!Model.Advisories.Any())
+    {
+        <div class="empty">No active advisories right now. New notices from your community administrators will appear here.</div>
+    }
+    else
+    {
+        foreach (var a in Model.Advisories)
+        {
+            <partial name="~/Views/Advisories/_Card.cshtml" model="a" />
+        }
+    }
+</section>
+
+<section class="band container" aria-label="Find help and get ready">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <h2 class="h4">Know where to go</h2>
+            <p class="lede">Find evacuation centers, hospitals and fire stations near you before you need them.</p>
+            <a class="btn btn-primary" asp-controller="Centers" asp-action="Index">Open the evacuation map</a>
+        </div>
+        <div class="col-md-6">
+            <h2 class="h4">Get ready</h2>
+            <p class="lede">Checklists for typhoons, floods, earthquakes and fires that you can follow step by step.</p>
+            <a class="btn btn-outline-secondary" asp-controller="Guides" asp-action="Index">Read preparedness guides</a>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+    (function () {
+        var btn = document.getElementById("use-location");
+        if (!btn) return;
+        var status = document.getElementById("loc-status");
+        btn.addEventListener("click", function () {
+            if (!navigator.geolocation) { status.textContent = "Your browser cannot share its location."; return; }
+            status.textContent = "Finding you...";
+            navigator.geolocation.getCurrentPosition(function (pos) {
+                var url = new URL(window.location.href);
+                url.searchParams.set("lat", pos.coords.latitude.toFixed(4));
+                url.searchParams.set("lon", pos.coords.longitude.toFixed(4));
+                window.location.href = url.toString();
+            }, function () {
+                status.textContent = "Location was blocked. Allow location access for this site in your browser and try again.";
+            }, { enableHighAccuracy: false, timeout: 10000 });
+        });
+    })();
+</script>
+}

@@ -1,0 +1,39 @@
+@model EvacuationCenter
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="row">
+    <div class="col-md-8 mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="FacilityType" class="form-label"></label>
+        <select asp-for="FacilityType" class="form-select" asp-items="@(new SelectList(Lookups.FacilityTypes))"></select>
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="Address" class="form-label"></label>
+    <input asp-for="Address" class="form-control" />
+    <span asp-validation-for="Address" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="ContactNumber" class="form-label"></label>
+    <input asp-for="ContactNumber" class="form-control" />
+</div>
+<div class="mb-3">
+    <label asp-for="OperationalNotes" class="form-label"></label>
+    <textarea asp-for="OperationalNotes" class="form-control" rows="3"></textarea>
+</div>
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Latitude" class="form-label"></label>
+        <input asp-for="Latitude" class="form-control" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Longitude" class="form-label"></label>
+        <input asp-for="Longitude" class="form-control" />
+    </div>
+</div>
+<div class="form-text mb-3">Leave latitude and longitude empty to look them up from the address using Google Geocoding.</div>
+<button class="btn btn-primary" type="submit">Save</button>
+<a asp-action="Manage" class="btn btn-outline-secondary">Cancel</a>

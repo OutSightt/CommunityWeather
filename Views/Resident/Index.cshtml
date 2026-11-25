@@ -1,0 +1,60 @@
+@model ResidentDashboardViewModel
+@{
+    ViewData["Title"] = "My dashboard";
+    var w = Model.Weather;
+    var first = Model.FullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? Model.FullName;
+    string Cap(string s) => string.IsNullOrEmpty(s) ? s : char.ToUpper(s[0]) + s.Substring(1);
+}
+<h1>Hello, @first</h1>
+<p class="lede">Here is what is happening in your community today.</p>
+
+<div class="row g-5 mt-1">
+    <div class="col-lg-7">
+        <div class="section-head">
+            <h2>Active advisories</h2>
+            <a asp-controller="Advisories" asp-action="Index">See all</a>
+        </div>
+        @if (!Model.Advisories.Any())
+        {
+            <div class="empty">No active advisories right now. New notices will appear here.</div>
+        }
+        else
+        {
+            foreach (var a in Model.Advisories)
+            {
+                <partial name="~/Views/Advisories/_Card.cshtml" model="a" />
+            }
+        }
+    </div>
+
+    <div class="col-lg-5">
+        <h2 class="h4">Weather now</h2>
+        @if (w.Ok)
+        {
+            <p class="mb-1"><span class="figure-inline">@w.Temperature.ToString("0")@w.TempUnit</span> @Cap(w.Description) in @w.Location</p>
+            <p class="notice-meta">Retrieved @w.RetrievedAt.ToString("h:mm tt") from OpenWeather.</p>
+        }
+        else
+        {
+            <p class="notice-meta">@w.Error</p>
+        }
+        <a asp-controller="Home" asp-action="Index">Open the full forecast</a>
+
+        <h2 class="h4 mt-5">Email alerts</h2>
+        <p>
+            @if (Model.EmailAlerts) { <text>You will get an email when a high-priority advisory is published.</text> }
+            else { <text>Email alerts are off. You will only see advisories on this site.</text> }
+        </p>
+        <form asp-action="SetEmailAlerts" method="post">
+            <input type="hidden" name="enabled" value="@((!Model.EmailAlerts).ToString().ToLowerInvariant())" />
+            <button class="btn btn-outline-secondary" type="submit">@(Model.EmailAlerts ? "Turn off email alerts" : "Turn on email alerts")</button>
+        </form>
+
+        <h2 class="h4 mt-5">Get ready</h2>
+        <ul class="todo">
+            <li><span>@Model.LocationCount evacuation centers and facilities</span><a asp-controller="Centers" asp-action="Index">Open map</a></li>
+            <li><span>Checklists for typhoons, floods, earthquakes and fires</span><a asp-controller="Guides" asp-action="Index">Read</a></li>
+            <li><span>Member since @Model.MemberSince.ToString("MMM d, yyyy")</span><a asp-controller="Account" asp-action="Profile">My profile</a></li>
+        </ul>
+    </div>
+</div>

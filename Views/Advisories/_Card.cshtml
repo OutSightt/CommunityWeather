@@ -1,0 +1,20 @@
+@model Advisory
+@{
+    var archived = Model.Status == "Archived" || (Model.ValidUntil.HasValue && Model.ValidUntil.Value < DateTime.Now);
+    var cls = Model.Priority == "High" && !archived ? "notice notice-high" : archived ? "notice notice-archived" : "notice";
+}
+<article class="@cls">
+    <div class="notice-head">
+        <h3><a asp-controller="Advisories" asp-action="Details" asp-route-id="@Model.Id">@Model.Title</a></h3>
+        <div>
+            @if (Model.Priority == "High") { <span class="tag tag-high">High priority</span> }
+            <span class="tag">@Model.Category</span>
+        </div>
+    </div>
+    <p class="notice-body">@Model.Message</p>
+    <p class="notice-meta">
+        Affected area: @Model.AffectedArea.
+        Published @(Model.PublishedAt?.ToString("MMM d, yyyy h:mm tt") ?? "not yet").
+        @if (Model.ValidUntil.HasValue) { <text>Valid until @Model.ValidUntil.Value.ToString("MMM d, yyyy h:mm tt").</text> }
+    </p>
+</article>

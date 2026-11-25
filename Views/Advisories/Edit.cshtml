@@ -1,0 +1,8 @@
+@model Advisory
+@{
+    ViewData["Title"] = "Edit advisory";
+}
+<h1 class="mb-3">Edit advisory</h1>
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <partial name="_Form" model="Model" />
+</form>
